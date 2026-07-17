@@ -1,0 +1,108 @@
+name: Update AUR package
+
+on:
+  schedule:
+    - cron: "20 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: "Push current packaging tree to AUR even if version did not change"
+        required: false
+        default: false
+        type: boolean
+  repository_dispatch:
+    types: [synara-release]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aur-synara-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Sync upstream release to AUR
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect / apply upstream update
+        id: sync
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_REPO: Emanuele-web04/synara
+          FORCE_PUBLISH: ${{ inputs.force_publish || false }}
+        run: |
+          chmod +x scripts/update-from-upstream.sh
+          scripts/update-from-upstream.sh
+          # Ensure publish steps always have a version, even on force_publish.
+          if ! grep -q '^version=' "$GITHUB_OUTPUT"; then
+            echo "version=$(sed -n 's/^pkgver=//p' PKGBUILD | head -n1)" >> "$GITHUB_OUTPUT"
+          fi
+          echo "force_publish=${FORCE_PUBLISH}" >> "$GITHUB_OUTPUT"
+
+      - name: Regenerate .SRCINFO
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          docker run --rm -v "$PWD:/pkg" -w /pkg archlinux:latest bash -lc '
+            pacman -Sy --noconfirm base-devel >/dev/null
+            useradd -m builder
+            chown -R builder:builder /pkg
+            su builder -c "makepkg --printsrcinfo > .SRCINFO"
+          '
+
+      - name: Commit packaging repo changes
+        if: steps.sync.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add PKGBUILD .SRCINFO LICENSE
+          git commit -m "upgpkg: synara ${{ steps.sync.outputs.version }}"
+          git push
+
+      - name: Publish to AUR
+        if: steps.sync.outputs.updated == 'true' || steps.sync.outputs.force_publish == 'true'
+        env:
+          AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          AUR_GIT_NAME: ${{ secrets.AUR_GIT_NAME }}
+          AUR_GIT_EMAIL: ${{ secrets.AUR_GIT_EMAIL }}
+        run: |
+          if [[ -z "${AUR_SSH_PRIVATE_KEY:-}" ]]; then
+            echo "AUR_SSH_PRIVATE_KEY secret is missing; packaging repo was updated but AUR was not pushed." >&2
+            exit 1
+          fi
+
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$AUR_SSH_PRIVATE_KEY" > ~/.ssh/aur_key
+          chmod 600 ~/.ssh/aur_key
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur_key -o IdentitiesOnly=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+
+          git clone "ssh://aur@aur.archlinux.org/synara.git" /tmp/aur-synara
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'scripts' \
+            --exclude 'README.md' \
+            --exclude '.gitignore' \
+            ./ /tmp/aur-synara/
+
+          cd /tmp/aur-synara
+          version="${{ steps.sync.outputs.version }}"
+          git config user.name "${AUR_GIT_NAME:-horizzon3507}"
+          git config user.email "${AUR_GIT_EMAIL:-148660626+horizzon3507@users.noreply.github.com}"
+          git add PKGBUILD .SRCINFO synara.desktop synara.png LICENSE
+          if git diff --cached --quiet; then
+            echo "AUR tree already up to date."
+            exit 0
+          fi
+          if git rev-parse --verify HEAD >/dev/null 2>&1; then
+            git commit -m "upgpkg: synara ${version}"
+          else
+            git commit -m "Initial import: synara ${version}"
+          fi
+          git push

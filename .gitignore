@@ -1,0 +1,7 @@
+*.AppImage
+*.pkg.tar*
+*.tar.gz
+*.tar.zst
+src/
+pkg/
+GUIDE.md
