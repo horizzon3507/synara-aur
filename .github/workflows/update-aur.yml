@@ -47,12 +47,20 @@ jobs:
       - name: Regenerate .SRCINFO
         if: steps.sync.outputs.updated == 'true'
         run: |
-          docker run --rm -v "$PWD:/pkg" -w /pkg archlinux:latest bash -lc '
-            pacman -Sy --noconfirm base-devel >/dev/null
-            useradd -m builder
-            chown -R builder:builder /pkg
-            su builder -c "makepkg --printsrcinfo > .SRCINFO"
-          '
+          docker run --rm \
+            -v "$PWD:/pkg" \
+            -w /pkg \
+            archlinux:latest bash -lc '
+              pacman -Sy --noconfirm base-devel >/dev/null
+              HOST_UID='"$(id -u)"'
+              HOST_GID='"$(id -g)"'
+              groupadd -g "$HOST_GID" builder
+              useradd -u "$HOST_UID" -g "$HOST_GID" -m builder
+              # Make the package directory writable for the builder without
+              # touching the permissions of .git or other tracked files.
+              chown "$HOST_UID:$HOST_GID" /pkg
+              su builder -c "makepkg --printsrcinfo > /pkg/.SRCINFO"
+            '
 
       - name: Commit packaging repo changes
         if: steps.sync.outputs.updated == 'true'
