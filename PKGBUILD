@@ -19,7 +19,7 @@ options=('!strip' '!debug')
 source=(
   "Synara-${pkgver}-x86_64.AppImage::https://github.com/Emanuele-web04/synara/releases/download/v${pkgver}/Synara-${pkgver}-x86_64.AppImage"
   "synara.desktop"
-  "icons/synara-code.svg"
+  "synara-code.svg"
   "LICENSE::https://raw.githubusercontent.com/Emanuele-web04/synara/v${pkgver}/LICENSE"
 )
 sha256sums=(
@@ -58,9 +58,9 @@ EOF
 
   install -Dm644 synara.desktop \
     "${pkgdir}/usr/share/applications/synara.desktop"
-  install -Dm644 icons/synara-code.svg \
+  install -Dm644 synara-code.svg \
     "${pkgdir}/usr/share/icons/hicolor/scalable/apps/synara-code.svg"
-  install -Dm644 icons/synara-code.svg \
+  install -Dm644 synara-code.svg \
     "${pkgdir}/usr/share/pixmaps/synara-code.svg"
   install -Dm644 LICENSE \
     "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"

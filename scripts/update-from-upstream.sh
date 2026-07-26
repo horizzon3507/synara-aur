@@ -67,7 +67,7 @@ cp "$license_tmp" LICENSE
 rm -f "$license_tmp"
 
 desktop_sha="$(sha256sum synara.desktop | awk '{print $1}')"
-icon_sha="$(sha256sum icons/synara-code.svg | awk '{print $1}')"
+icon_sha="$(sha256sum synara-code.svg | awk '{print $1}')"
 
 echo "Updating $current_ver -> $version"
 
