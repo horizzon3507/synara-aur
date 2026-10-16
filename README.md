@@ -17,3 +17,16 @@ paru -S synara
 - Package name is `synara` (binary/AppImage packaging).
 - Tracks stable upstream releases only.
 - Community packaging — not an official Synara project package.
+
+## Beta channel
+
+A second package, `synara-beta`, tracks upstream prereleases (the `-beta.N`
+builds). It is co-installable with the stable one:
+
+```bash
+yay -S synara-beta
+```
+
+It installs under `/opt/synara-beta` with the `/usr/bin/synara-beta` launcher, so
+both channels can be present at the same time. Packaging files live in `beta/`.
+
