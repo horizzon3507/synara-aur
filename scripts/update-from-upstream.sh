@@ -67,14 +67,13 @@ cp "$license_tmp" LICENSE
 rm -f "$license_tmp"
 
 desktop_sha="$(sha256sum synara.desktop | awk '{print $1}')"
-icon_sha="$(sha256sum synara-code.svg | awk '{print $1}')"
 
 echo "Updating $current_ver -> $version"
 
-python3 - "$version" "$appimage_sha" "$desktop_sha" "$icon_sha" "$license_sha" <<'PY'
+python3 - "$version" "$appimage_sha" "$desktop_sha" "$license_sha" <<'PY'
 import pathlib, sys
 
-version, app_sha, desktop_sha, icon_sha, license_sha = sys.argv[1:]
+version, app_sha, desktop_sha, license_sha = sys.argv[1:]
 path = pathlib.Path("PKGBUILD")
 text = path.read_text()
 lines = text.splitlines(keepends=True)
@@ -94,7 +93,6 @@ while i < len(lines):
             i += 1
         out.append(f"  '{app_sha}'\n")
         out.append(f"  '{desktop_sha}'\n")
-        out.append(f"  '{icon_sha}'\n")
         out.append(f"  '{license_sha}'\n")
         if i < len(lines):
             out.append(lines[i])  # closing )

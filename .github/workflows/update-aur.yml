@@ -111,7 +111,7 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude 'scripts' \
-            --exclude 'icons' \
+            --exclude 'archive' \
             --exclude 'README.md' \
             --exclude '.gitignore' \
             --exclude '.devin' \

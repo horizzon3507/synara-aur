@@ -19,13 +19,11 @@ options=('!strip' '!debug')
 source=(
   "Synara-${pkgver}-x86_64.AppImage::https://github.com/Emanuele-web04/synara/releases/download/v${pkgver}/Synara-${pkgver}-x86_64.AppImage"
   "synara.desktop"
-  "synara-code.svg"
   "LICENSE::https://raw.githubusercontent.com/Emanuele-web04/synara/v${pkgver}/LICENSE"
 )
 sha256sums=(
   'bb5c5589ccbed1d1e003adefa3f7597d1b4b2e3842930caf97621e603449304b'
-  '18edbd09c38d58bcde63c2fb93f670f8d2eaeca84a1baa0d398fac3ade78ae56'
-  '426cd0c3bacd826957099cb20609c6aeb62445c8203b515924b998623a646fad'
+  'a6a5dbdcd15b78fa36370059b1c95d3e534811c324e4a7774d64da968ba03f9b'
   '305724dd050ca7ded99c662de813d755bc4ec3887c4543a37159c6662ca36d1b'
 )
 
@@ -58,10 +56,11 @@ EOF
 
   install -Dm644 synara.desktop \
     "${pkgdir}/usr/share/applications/synara.desktop"
-  install -Dm644 synara-code.svg \
-    "${pkgdir}/usr/share/icons/hicolor/scalable/apps/synara-code.svg"
-  install -Dm644 synara-code.svg \
-    "${pkgdir}/usr/share/pixmaps/synara-code.svg"
+
+  # The AppImage ships its own hicolor icon; install it under the name the
+  # desktop entry and the app's runtime icon writer both use.
+  install -Dm644 squashfs-root/usr/share/icons/hicolor/1024x1024/apps/synara.png \
+    "${pkgdir}/usr/share/icons/hicolor/1024x1024/apps/synara.png"
   install -Dm644 LICENSE \
     "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
