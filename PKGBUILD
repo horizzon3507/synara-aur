@@ -13,7 +13,7 @@ pkgdesc="Minimal desktop GUI for coding agents (Codex, Claude, Cursor, and more)
 arch=('x86_64')
 url="https://trysynara.com"
 license=('MIT')
-depends=('zlib' 'glibc' 'hicolor-icon-theme')
+depends=('zlib' 'glibc')
 conflicts=('synara-bin')
 options=('!strip' '!debug')
 source=(
@@ -23,7 +23,7 @@ source=(
 )
 sha256sums=(
   'bb5c5589ccbed1d1e003adefa3f7597d1b4b2e3842930caf97621e603449304b'
-  'a6a5dbdcd15b78fa36370059b1c95d3e534811c324e4a7774d64da968ba03f9b'
+  'd89fa8f91daac926ee4d51a1ff5bb9d96d19059ca1a0e01147c786ea157f5b5b'
   '305724dd050ca7ded99c662de813d755bc4ec3887c4543a37159c6662ca36d1b'
 )
 
@@ -56,11 +56,6 @@ EOF
 
   install -Dm644 synara.desktop \
     "${pkgdir}/usr/share/applications/synara.desktop"
-
-  # The AppImage ships its own hicolor icon; install it under the name the
-  # desktop entry and the app's runtime icon writer both use.
-  install -Dm644 squashfs-root/usr/share/icons/hicolor/1024x1024/apps/synara.png \
-    "${pkgdir}/usr/share/icons/hicolor/1024x1024/apps/synara.png"
   install -Dm644 LICENSE \
     "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
