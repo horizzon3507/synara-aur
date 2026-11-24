@@ -17,7 +17,7 @@ pkgdesc="Minimal desktop GUI for coding agents (beta channel)"
 arch=('x86_64')
 url="https://trysynara.com"
 license=('MIT')
-depends=('zlib' 'glibc' 'hicolor-icon-theme')
+depends=('zlib' 'glibc')
 conflicts=('synara-bin')
 options=('!strip' '!debug')
 
@@ -32,7 +32,7 @@ source=(
 )
 sha256sums=(
   '4a9f36e2bd078db71001f2e2573f1a4b1c48c4cf45980f49ad0e87ce914637a7'
-  'c9bc19ef9bbcf3768f9006c855d1aa50aa19882c192939f36bba25bc9b3740e9'
+  '07f583033090f446d4949af39b68de392936544be250de0036ee229628fd8e55'
   '305724dd050ca7ded99c662de813d755bc4ec3887c4543a37159c6662ca36d1b'
 )
 
@@ -65,11 +65,6 @@ EOF
 
   install -Dm644 synara-beta.desktop \
     "${pkgdir}/usr/share/applications/synara-beta.desktop"
-
-  # The AppImage ships its own hicolor icon; install it under the name the
-  # desktop entry and the app's runtime icon writer both use.
-  install -Dm644 squashfs-root/usr/share/icons/hicolor/1024x1024/apps/synara-beta.png \
-    "${pkgdir}/usr/share/icons/hicolor/1024x1024/apps/synara-beta.png"
   install -Dm644 LICENSE \
     "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
