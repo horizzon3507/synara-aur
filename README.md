@@ -2,7 +2,7 @@
 
 Unofficial Arch User Repository package for [Synara](https://github.com/Emanuele-web04/synara).
 
-Installs the upstream Linux AppImage into `/opt/synara`, with `/usr/bin/synara`, a `.desktop` entry, and an icon.
+Installs the upstream Linux AppImage into `/opt/synara`, with `/usr/bin/synara` and a `.desktop` entry (icons are managed at runtime by Synara itself).
 
 ## Install
 
